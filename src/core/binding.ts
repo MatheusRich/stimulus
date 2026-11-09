@@ -1,5 +1,6 @@
 import { Action } from "./action"
 import { ActionEvent } from "./action_event"
+import { keyboardEventNames } from "./action_descriptor"
 import { Context } from "./context"
 import { Controller } from "./controller"
 import { Scope } from "./scope"
@@ -86,13 +87,8 @@ export class Binding {
   private willBeInvokedByEvent(event: Event): boolean {
     const eventTarget = event.target
 
-    if (event.type === "keydown") {
-      // when accepting an autocomplete suggestion, Chrome dispatches a keydown event,
-      // but it isn't a KeyboardEvent instance
-      const keyboardEvent: KeyboardEvent = event instanceof KeyboardEvent ? event : new KeyboardEvent("keydown")
-      if (this.action.shouldIgnoreKeyboardEvent(keyboardEvent)) {
-        return false
-      }
+    if (keyboardEventNames.includes(event.type) && this.action.shouldIgnoreKeyboardEvent(event)) {
+      return false
     }
 
     if (event instanceof MouseEvent && this.action.shouldIgnoreMouseEvent(event)) {

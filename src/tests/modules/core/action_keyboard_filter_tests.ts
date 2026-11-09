@@ -22,6 +22,7 @@ export default class ActionKeyboardFilterTests extends LogControllerTestCase {
       <button id="button8" data-action="keydown.a->a#log keydown.b->a#log2"></button>
       <button id="button9" data-action="keydown.shift+a->a#log keydown.a->a#log2 keydown.ctrl+shift+a->a#log3">
       <button id="button10" data-action="jquery.custom.event->a#log jquery.a->a#log2">
+      <button id="button11" data-action="keypress.enter->a#log keypress->a#log3"></button>
     </div>
   `
 
@@ -198,11 +199,24 @@ export default class ActionKeyboardFilterTests extends LogControllerTestCase {
     this.assertActions({ name: "log2", identifier: "a", eventType: "jquery.a", currentTarget: button })
   }
 
-  async "test ignore events dispatched by autocomplete"() {
-    const button = this.findElement("#button10")
+  async "test ignore non-keyboard keydown events in actions with a key filter"() {
+    const button = this.findElement("#button1")
     await this.nextFrame
-    await this.triggerEvent(button, "keydown", {})
+    await this.triggerEvent(button, "keydown")
+    this.assertActions({ name: "log3", identifier: "a", eventType: "keydown", currentTarget: button })
+  }
 
-    this.assertNoActions()
+  async "test ignore non-keyboard keyup events in actions with a key filter"() {
+    const button = this.findElement("#button6")
+    await this.nextFrame
+    await this.triggerEvent(button, "keyup")
+    this.assertActions({ name: "log3", identifier: "a", eventType: "keyup", currentTarget: button })
+  }
+
+  async "test ignore non-keyboard keypress events in actions with a key filter"() {
+    const button = this.findElement("#button11")
+    await this.nextFrame
+    await this.triggerEvent(button, "keypress")
+    this.assertActions({ name: "log3", identifier: "a", eventType: "keypress", currentTarget: button })
   }
 }
